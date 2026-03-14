@@ -1,12 +1,13 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Activity, Users, Star, Lightbulb, Navigation } from "lucide-react";
+import { useCountUp } from "@/hooks/useCountUp";
 
-const stats = [
-  { label: "Total Events", value: "2.4M", icon: Activity },
-  { label: "User Sessions", value: "86.3K", icon: Users },
-  { label: "Most Used", value: "Orders", icon: Star },
-  { label: "UX Insights", value: "23", icon: Lightbulb },
+const statsConfig = [
+  { label: "Total Events", end: 2.4, suffix: "M", icon: Activity },
+  { label: "User Sessions", end: 86.3, suffix: "K", icon: Users },
+  { label: "Most Used", text: "Orders", icon: Star },
+  { label: "UX Insights", end: 23, suffix: "", icon: Lightbulb },
 ];
 
 const navOrder = [
@@ -16,6 +17,13 @@ const navOrder = [
   { name: "Settings", score: 45 },
   { name: "Profile", score: 31 },
 ];
+
+const CountStat = ({ end, suffix, inView }: { end: number; suffix: string; inView: boolean }) => {
+  const isDecimal = end % 1 !== 0;
+  const count = useCountUp(isDecimal ? Math.round(end * 10) : end, 1800, inView);
+  const display = isDecimal ? (count / 10).toFixed(1) : count;
+  return <>{display}{suffix}</>;
+};
 
 const DashboardPreview = () => {
   const ref = useRef(null);
@@ -42,10 +50,12 @@ const DashboardPreview = () => {
           className="border rounded-2xl bg-card p-6 shadow-xl"
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            {stats.map((s) => (
+            {statsConfig.map((s) => (
               <div key={s.label} className="p-4 rounded-xl bg-surface-elevated border">
                 <s.icon size={16} className="text-muted-foreground mb-2" />
-                <p className="text-2xl font-bold text-foreground">{s.value}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {s.text ? s.text : <CountStat end={s.end!} suffix={s.suffix!} inView={inView} />}
+                </p>
                 <p className="text-xs text-muted-foreground">{s.label}</p>
               </div>
             ))}
