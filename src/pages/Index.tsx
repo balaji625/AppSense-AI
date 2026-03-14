@@ -10,6 +10,7 @@ import TargetUsersSection from "@/components/TargetUsersSection";
 import ComparisonSection from "@/components/ComparisonSection";
 import FoundersSection from "@/components/FoundersSection";
 import CTASection from "@/components/CTASection";
+import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
 
 const Index = () => (
@@ -26,6 +27,7 @@ const Index = () => (
     <ComparisonSection />
     <FoundersSection />
     <CTASection />
+    <ContactSection />
     <FooterSection />
   </div>
 );
