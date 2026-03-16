@@ -1,6 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Play } from "lucide-react";
+
 
 const DemoSection = () => {
   const ref = useRef(null);
