@@ -27,13 +27,13 @@ const HowItWorksSection = () => {
           </h2>
         </motion.div>
 
-        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-4">
-          {/* Connector line */}
-          <div className="hidden md:block absolute top-1/2 left-0 right-0 h-px bg-border -translate-y-1/2 z-0" />
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+          {/* Connector line (desktop only) */}
+          <div className="hidden md:block absolute top-[40px] left-[12.5%] right-[12.5%] h-px bg-border z-0" />
           <motion.div
-            className="hidden md:block absolute top-1/2 left-0 h-px bg-primary -translate-y-1/2 z-0"
+            className="hidden md:block absolute top-[40px] left-[12.5%] h-px bg-primary z-0"
             initial={{ width: "0%" }}
-            animate={inView ? { width: "100%" } : {}}
+            animate={inView ? { width: "75%" } : {}}
             transition={{ delay: 0.3, duration: 1.2, ease: "easeOut" }}
           />
 
@@ -43,14 +43,14 @@ const HowItWorksSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.2 + i * 0.15 }}
-              className="relative z-10 flex flex-col items-center text-center flex-1"
+              className="relative z-10 flex flex-col items-center text-center"
             >
-              <div className="w-16 h-16 rounded-2xl bg-surface-elevated border flex items-center justify-center mb-4 shadow-sm">
-                <step.icon size={24} className="text-primary" />
+              <div className="w-20 h-20 rounded-2xl bg-surface-elevated border flex items-center justify-center mb-5 shadow-sm">
+                <step.icon size={28} className="text-primary" />
               </div>
               <span className="font-mono text-xs text-primary mb-1">Step {i + 1}</span>
-              <h3 className="font-semibold text-foreground">{step.label}</h3>
-              <p className="text-sm text-muted-foreground mt-1 max-w-[180px]">{step.desc}</p>
+              <h3 className="font-bold text-lg text-foreground">{step.label}</h3>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-[200px] leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}
         </div>
