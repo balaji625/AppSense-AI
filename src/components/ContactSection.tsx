@@ -104,9 +104,10 @@ const ContactSection = () => {
           </div>
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity duration-200 w-full justify-center"
+            disabled={status === "sending"}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity duration-200 w-full justify-center disabled:opacity-60"
           >
-            {status === "sent" ? "Message Sent ✓" : <><Send size={16} /> Send Message</>}
+            {status === "sending" ? "Sending..." : status === "sent" ? "Message Sent ✓" : status === "error" ? "Failed — Try Again" : <><Send size={16} /> Send Message</>}
           </button>
         </motion.form>
       </div>

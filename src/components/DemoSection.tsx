@@ -26,17 +26,15 @@ const DemoSection = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.2 }}
-          className="mt-12 relative aspect-video rounded-2xl border bg-card overflow-hidden group cursor-pointer"
+          className="mt-12 relative aspect-video rounded-2xl border bg-card overflow-hidden shadow-lg"
         >
-          <div className="absolute inset-0 bg-secondary/80 flex items-center justify-center">
-            <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-lg">
-              <Play size={32} className="text-primary-foreground ml-1" />
-            </div>
-          </div>
-          <div className="absolute bottom-6 left-6 text-left">
-            <p className="text-xs font-mono text-primary-foreground/60">Demo Flow</p>
-            <p className="text-sm text-primary-foreground/80 mt-1">User opens Orders → AI detects pattern → Navigation adapts</p>
-          </div>
+          <iframe
+            src="https://www.youtube.com/embed/hoe-cY2G0-w?si=ZZgtJr7Sjr4EZ45e"
+            title="AppSense AI Demo"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            className="absolute inset-0 w-full h-full"
+          />
         </motion.div>
       </div>
     </section>
