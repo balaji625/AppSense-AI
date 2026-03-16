@@ -24,13 +24,13 @@ const CTASection = () => {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
-                href="#"
+                href="#contact"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity duration-200"
               >
                 Start Free <ArrowRight size={16} />
               </a>
               <a
-                href="#"
+                href="#founders"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-secondary-foreground/20 text-secondary-foreground font-semibold text-sm hover:bg-secondary-foreground/10 transition-colors duration-200"
               >
                 <Sparkles size={16} /> Join Early Access
