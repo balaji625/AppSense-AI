@@ -1,20 +1,42 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Send, Mail, User, MessageSquare } from "lucide-react";
+import emailjs from "@emailjs/browser";
+
+const SERVICE_ID = "service_qvr20bd";
+const WELCOME_TEMPLATE_ID = "template_pt4yib6";
+const LEAD_TEMPLATE_ID = "template_8mextx5";
+const PUBLIC_KEY = "aSiKP7rbqoKlXXhUC";
 
 const ContactSection = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: integrate EmailJS here
-    console.log("Contact form submitted:", form);
-    setStatus("sent");
-    setTimeout(() => setStatus("idle"), 3000);
-    setForm({ name: "", email: "", message: "" });
+    setStatus("sending");
+
+    const templateParams = {
+      user_name: form.name,
+      user_email: form.email,
+      message: form.message,
+    };
+
+    try {
+      await Promise.all([
+        emailjs.send(SERVICE_ID, WELCOME_TEMPLATE_ID, templateParams, PUBLIC_KEY),
+        emailjs.send(SERVICE_ID, LEAD_TEMPLATE_ID, templateParams, PUBLIC_KEY),
+      ]);
+      setStatus("sent");
+      setForm({ name: "", email: "", message: "" });
+      setTimeout(() => setStatus("idle"), 4000);
+    } catch (error) {
+      console.error("EmailJS error:", error);
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 4000);
+    }
   };
 
   return (
