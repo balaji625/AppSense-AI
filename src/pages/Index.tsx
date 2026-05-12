@@ -12,6 +12,8 @@ import FoundersSection from "@/components/FoundersSection";
 import CTASection from "@/components/CTASection";
 import ContactSection from "@/components/ContactSection";
 import PricingFAQSection from "@/components/PricingFAQSection";
+import PricingComparisonSection from "@/components/PricingComparisonSection";
+import EnterpriseContactSection from "@/components/EnterpriseContactSection";
 import FooterSection from "@/components/FooterSection";
 
 const Index = () => (
@@ -29,6 +31,8 @@ const Index = () => (
     <FoundersSection />
     <CTASection />
     <PricingFAQSection />
+    <PricingComparisonSection />
+    <EnterpriseContactSection />
     <ContactSection />
     <FooterSection />
   </div>
