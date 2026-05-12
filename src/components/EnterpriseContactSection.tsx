@@ -2,18 +2,37 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { z } from "zod";
 import emailjs from "@emailjs/browser";
-import { Building2, Send, CheckCircle2 } from "lucide-react";
+import { Building2, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const schema = z.object({
-  name: z.string().trim().min(1, "Name required").max(100),
-  workEmail: z.string().trim().email("Invalid email").max(255),
-  company: z.string().trim().min(1, "Company required").max(100),
-  companySize: z.string().min(1, "Select company size"),
-  eventVolume: z.string().min(1, "Select event volume"),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Please enter your full name (min 2 characters)")
+    .max(100, "Name must be under 100 characters"),
+  workEmail: z
+    .string()
+    .trim()
+    .min(1, "Work email is required")
+    .email("Enter a valid email like name@company.com")
+    .max(255, "Email must be under 255 characters")
+    .refine(
+      (v) => !/@(gmail|yahoo|outlook|hotmail|icloud|proton)\./i.test(v),
+      "Please use your work email — personal inboxes aren't supported"
+    ),
+  company: z
+    .string()
+    .trim()
+    .min(2, "Company name is required")
+    .max(100, "Company name must be under 100 characters"),
+  companySize: z.string().min(1, "Select your company size so we can match the right plan"),
+  eventVolume: z.string().min(1, "Pick your monthly event volume"),
   needs: z.array(z.string()).default([]),
-  notes: z.string().trim().max(1000).optional().default(""),
+  notes: z.string().trim().max(1000, "Notes must be under 1000 characters").optional().default(""),
 });
+
+type FieldKey = "name" | "workEmail" | "company" | "companySize" | "eventVolume" | "notes";
 
 const sizes = ["1–10", "11–50", "51–200", "201–1000", "1000+"];
 const volumes = ["< 1M / month", "1M – 10M", "10M – 100M", "100M+"];
@@ -34,6 +53,32 @@ const EnterpriseContactSection = () => {
   });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
+  const [touched, setTouched] = useState<Partial<Record<FieldKey, boolean>>>({});
+
+  const validateField = (field: FieldKey, nextForm = form) => {
+    const result = schema.safeParse(nextForm);
+    if (result.success) {
+      setErrors((p) => {
+        const { [field]: _, ...rest } = p;
+        return rest;
+      });
+      return;
+    }
+    const issue = result.error.issues.find((i) => i.path[0] === field);
+    setErrors((p) => ({ ...p, [field]: issue?.message }));
+  };
+
+  const updateField = (field: FieldKey, value: string) => {
+    const next = { ...form, [field]: value };
+    setForm(next);
+    if (touched[field]) validateField(field, next);
+  };
+
+  const blur = (field: FieldKey) => {
+    setTouched((p) => ({ ...p, [field]: true }));
+    validateField(field);
+  };
 
   const toggleNeed = (n: string) =>
     setForm((p) => ({
@@ -45,7 +90,20 @@ const EnterpriseContactSection = () => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
-      toast({ title: "Please check the form", description: parsed.error.issues[0].message, variant: "destructive" });
+      const fieldErrors: Partial<Record<FieldKey, string>> = {};
+      const allTouched: Partial<Record<FieldKey, boolean>> = {};
+      parsed.error.issues.forEach((i) => {
+        const k = i.path[0] as FieldKey;
+        if (!fieldErrors[k]) fieldErrors[k] = i.message;
+        allTouched[k] = true;
+      });
+      setErrors(fieldErrors);
+      setTouched((p) => ({ ...p, ...allTouched }));
+      toast({
+        title: "Please fix the highlighted fields",
+        description: parsed.error.issues[0].message,
+        variant: "destructive",
+      });
       return;
     }
     setSubmitting(true);
@@ -63,6 +121,8 @@ const EnterpriseContactSection = () => {
       );
       setDone(true);
       setForm({ name: "", workEmail: "", company: "", companySize: "", eventVolume: "", needs: [], notes: "" });
+      setErrors({});
+      setTouched({});
       toast({ title: "Request sent ✓", description: "Our team will reach out within 1 business day." });
     } catch {
       toast({ title: "Could not send", description: "Please try again in a moment.", variant: "destructive" });
@@ -71,8 +131,21 @@ const EnterpriseContactSection = () => {
     }
   };
 
-  const inputCls =
-    "w-full px-4 py-2.5 rounded-lg border bg-background text-foreground text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition";
+  const inputBase =
+    "w-full px-4 py-2.5 rounded-lg border bg-background text-foreground text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 transition";
+  const inputCls = (field: FieldKey) =>
+    `${inputBase} ${
+      errors[field]
+        ? "border-destructive focus:ring-destructive/30 focus:border-destructive"
+        : "focus:ring-primary/40 focus:border-primary"
+    }`;
+
+  const ErrorMsg = ({ field }: { field: FieldKey }) =>
+    errors[field] ? (
+      <p className="mt-1.5 flex items-center gap-1.5 text-xs text-destructive">
+        <AlertCircle size={12} /> {errors[field]}
+      </p>
+    ) : null;
 
   return (
     <section id="enterprise" ref={ref} className="section-padding bg-background">
@@ -104,35 +177,44 @@ const EnterpriseContactSection = () => {
             <div>
               <label className="text-xs font-semibold text-foreground mb-1.5 block">Full name</label>
               <input
-                className={inputCls}
+                className={inputCls("name")}
                 value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                onChange={(e) => updateField("name", e.target.value)}
+                onBlur={() => blur("name")}
+                aria-invalid={!!errors.name}
                 placeholder="Jane Doe"
                 maxLength={100}
               />
+              <ErrorMsg field="name" />
             </div>
             <div>
               <label className="text-xs font-semibold text-foreground mb-1.5 block">Work email</label>
               <input
                 type="email"
-                className={inputCls}
+                className={inputCls("workEmail")}
                 value={form.workEmail}
-                onChange={(e) => setForm({ ...form, workEmail: e.target.value })}
+                onChange={(e) => updateField("workEmail", e.target.value)}
+                onBlur={() => blur("workEmail")}
+                aria-invalid={!!errors.workEmail}
                 placeholder="jane@company.com"
                 maxLength={255}
               />
+              <ErrorMsg field="workEmail" />
             </div>
           </div>
 
           <div>
             <label className="text-xs font-semibold text-foreground mb-1.5 block">Company</label>
             <input
-              className={inputCls}
+              className={inputCls("company")}
               value={form.company}
-              onChange={(e) => setForm({ ...form, company: e.target.value })}
+              onChange={(e) => updateField("company", e.target.value)}
+              onBlur={() => blur("company")}
+              aria-invalid={!!errors.company}
               placeholder="Acme Inc."
               maxLength={100}
             />
+            <ErrorMsg field="company" />
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -143,17 +225,25 @@ const EnterpriseContactSection = () => {
                   <button
                     type="button"
                     key={s}
-                    onClick={() => setForm({ ...form, companySize: s })}
+                    onClick={() => {
+                      const next = { ...form, companySize: s };
+                      setForm(next);
+                      setTouched((p) => ({ ...p, companySize: true }));
+                      validateField("companySize", next);
+                    }}
                     className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
                       form.companySize === s
                         ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background text-foreground hover:border-primary/40"
+                        : `bg-background text-foreground hover:border-primary/40 ${
+                            errors.companySize ? "border-destructive/50" : ""
+                          }`
                     }`}
                   >
                     {s}
                   </button>
                 ))}
               </div>
+              <ErrorMsg field="companySize" />
             </div>
             <div>
               <label className="text-xs font-semibold text-foreground mb-1.5 block">Monthly event volume</label>
@@ -162,17 +252,25 @@ const EnterpriseContactSection = () => {
                   <button
                     type="button"
                     key={v}
-                    onClick={() => setForm({ ...form, eventVolume: v })}
+                    onClick={() => {
+                      const next = { ...form, eventVolume: v };
+                      setForm(next);
+                      setTouched((p) => ({ ...p, eventVolume: true }));
+                      validateField("eventVolume", next);
+                    }}
                     className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
                       form.eventVolume === v
                         ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background text-foreground hover:border-primary/40"
+                        : `bg-background text-foreground hover:border-primary/40 ${
+                            errors.eventVolume ? "border-destructive/50" : ""
+                          }`
                     }`}
                   >
                     {v}
                   </button>
                 ))}
               </div>
+              <ErrorMsg field="eventVolume" />
             </div>
           </div>
 
@@ -201,15 +299,20 @@ const EnterpriseContactSection = () => {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-foreground mb-1.5 block">Anything else? (optional)</label>
+            <label className="text-xs font-semibold text-foreground mb-1.5 block flex items-center justify-between">
+              <span>Anything else? (optional)</span>
+              <span className="text-[10px] font-normal text-muted-foreground">{form.notes.length}/1000</span>
+            </label>
             <textarea
               rows={3}
-              className={inputCls}
+              className={inputCls("notes")}
               value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              onChange={(e) => updateField("notes", e.target.value)}
+              onBlur={() => blur("notes")}
               placeholder="Timeline, integrations, questions…"
               maxLength={1000}
             />
+            <ErrorMsg field="notes" />
           </div>
 
           <button
