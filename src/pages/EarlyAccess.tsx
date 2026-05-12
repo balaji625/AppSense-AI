@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Linkedin, Github, Twitter, Mail, Rocket, Users, Gift, Zap, Star, CheckCircle } from "lucide-react";
+import { ArrowLeft, Linkedin, Github, Mail, Rocket, Users, Gift, Zap, Star, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const founders = [
@@ -9,10 +9,9 @@ const founders = [
     desc: "Technology enthusiast focused on building intelligent software systems. Balaji leads product development and is passionate about AI-driven platforms that help developers build smarter applications.",
     initials: "BB",
     socials: {
-      linkedin: "#",
-      github: "#",
-      twitter: "#",
-      email: "balaji@appsenseai.com",
+      linkedin: "https://www.linkedin.com/in/bathala-balaji-92a279378",
+      github: "https://github.com/balaji625",
+      email: "bathalabalaji555@gmail.com",
     },
   },
   {
@@ -21,10 +20,9 @@ const founders = [
     desc: "Co-founder focused on product vision and growth strategy. Vijaya works on shaping the platform to help developers understand user behavior and improve app experiences.",
     initials: "KV",
     socials: {
-      linkedin: "#",
-      github: "#",
-      twitter: "#",
-      email: "vijaya@appsenseai.com",
+      linkedin: "https://www.linkedin.com/in/bathala-balaji-92a279378",
+      github: "https://github.com/balaji625",
+      email: "bathalabalaji555@gmail.com",
     },
   },
 ];
@@ -131,12 +129,13 @@ const EarlyAccess = () => {
                     {[
                       { Icon: Linkedin, href: f.socials.linkedin, label: "LinkedIn" },
                       { Icon: Github, href: f.socials.github, label: "GitHub" },
-                      { Icon: Twitter, href: f.socials.twitter, label: "Twitter" },
                       { Icon: Mail, href: `mailto:${f.socials.email}`, label: "Email" },
                     ].map(({ Icon, href, label }) => (
                       <a
                         key={label}
                         href={href}
+                        target={href.startsWith("mailto:") ? undefined : "_blank"}
+                        rel={href.startsWith("mailto:") ? undefined : "noopener noreferrer"}
                         className="p-2.5 rounded-xl border bg-muted/50 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200"
                         title={label}
                       >
