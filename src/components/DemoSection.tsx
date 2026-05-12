@@ -1,5 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { ExternalLink } from "lucide-react";
 
 
 const DemoSection = () => {
@@ -20,6 +21,14 @@ const DemoSection = () => {
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
             Watch how AppSense detects user behavior patterns and automatically reorganizes navigation to match usage.
           </p>
+          <a
+            href="https://appsense.netlify.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity shadow-md"
+          >
+            Try the Live Demo <ExternalLink size={14} />
+          </a>
         </motion.div>
 
         <motion.div
